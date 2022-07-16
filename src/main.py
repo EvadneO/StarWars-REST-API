@@ -33,12 +33,12 @@ def sitemap():
 #User
 @app.route('/user', methods=['GET'])
 def get_user():
-    Users = User.query.all()
-    Users = list(map(lambda x: x.serialize(),Users))
-    return jsonify(Users), 200
+    User = User.query.all()
+    User = list(map(lambda x: x.serialize(),User))
+    return jsonify(User), 200
 
 #GET User
-@app.route("/users/<int:user_id>/favorite", methods=['GET'])
+@app.route("/user/<int:user_id>/favorite", methods=['GET'])
 def get_user_favorite(user_id):
     user = User.query.get(user_id)
     people = user.get_people()
@@ -71,7 +71,7 @@ def create_favorite_planets(user_id):
     return jsonify(favorite_planets.serialize()), 201
 
 @app.route("/user/<int:user_id>/favorite_starships", methods=['POST'])
-def create_favorite_ship(user_id):
+def create_favorite_starships(user_id):
     favorite_starships = FavoriteStarships()
     favorite_starships.user_id = user_id
     favorite_starships.starships_id = request.json.get('starships_id')
@@ -82,10 +82,21 @@ def create_favorite_ship(user_id):
 
 @app.route("/user/<int:user_id>/favorite_people/<int:favorite_people_id>", methods=['DELETE'])
 def delete_favorite_people(user_id, favorite_people_id):
-    favorite_people = FavoritePeople.query.get(favorite_people_id)
-    favorite_people.delete()
+     favorite_people = FavoritePeople.query.get(favorite_people_id)
+     favorite_people.delete()
 
-    return jsonify(favorite_people.serialize()), 201
+     return jsonify(favorite_people.serialize()), 201
+
+# @app.route('/user/<int:uid>/favorite_people/<int:id>', methods=['DELETE'])
+# def delete_favorite_people(user_id, favorite_people_id):
+#     target = Favorite_people.query.filter_by(id_character=id, id_user=uid).first()
+#     if target:
+#         db.session.delete(target)
+#         db.session.commit()
+#         return "Todo ok"
+#     else:
+#         return "Character is not favorite"
+
 
 @app.route("/user/<int:user_id>/favorite_planets/<int:favorite_planets_id>", methods=['DELETE'])
 def delete_favorite_planets(user_id, favorite_planets_id):
@@ -119,8 +130,20 @@ def create_favorite_people(user_id):
     favorite_people.user_id = user_id
     favorite_people.people_id = request.json.get('people_id')
     favorite_people.save()
-    
+    db.session.add(favorite)
+    db.session.commit()
+
     return jsonify(favorite_people.serialize()), 201
+
+@app.route('/user/<int:uid>/favorite/people/<int:id>', methods=['DELETE'])
+def del_fav_people(id,uid):
+    target = Favorite_people.query.filter_by(id_people=id, id_user=uid).first()
+    if target:
+        db.session.delete(target)
+        db.session.commit()
+        return "Todo ok"
+    else:
+        return "People is not favorite"
 
 @app.route("/people", methods=['POST'])
 def createPeople():

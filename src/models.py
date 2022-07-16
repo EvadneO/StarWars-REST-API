@@ -7,9 +7,9 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
-    people = db.relationship('People', secondary='favorite_people', backref='users')
-    planets = db.relationship('Planets', secondary='favorite_planets', backref='users')
-    starships = db.relationship('Starships', secondary='favorite_starships', backref='users')
+    people = db.relationship('People', secondary='favorite_people', backref='user')
+    planets = db.relationship('Planets', secondary='favorite_planets', backref='user')
+    starships = db.relationship('Starships', secondary='favorite_starships', backref='user')
 
     def save(self):
         db.session.add(self)  # INSERT
@@ -23,13 +23,13 @@ class User(db.Model):
         db.session.commit()  # Guarda el DELETE
 
     def get_people(self):
-        return list(map(lambda person: person.to_dict(), self.people))
+        return list(map(lambda people: people.serialize(), self.people))
     
     def get_planets(self):
-        return list(map(lambda planet: planet.to_dict(), self.planets))
+        return list(map(lambda planets: planets.serialize(), self.planets))
     
     def get_starships(self):
-        return list(map(lambda ship: ship.to_dict(), self.starships))
+        return list(map(lambda starships: starships.serialize(), self.starships))
 
     def serialize(self):
         return {
@@ -182,6 +182,9 @@ class Favorite_people(db.Model):
             "people_id": self.people_id
         }
 
+    rel_user = db.relationship("User")
+    rel_people = db.relationship("People")
+
 
 class Favorite_planets(db.Model):
     __tablename__ = 'favorite_planets'
@@ -206,7 +209,9 @@ class Favorite_planets(db.Model):
             "user_id": self.user_id,
             "planets_id": self.planets_id
         }
-
+  
+    rel_user = db.relationship("User")
+    rel_planets = db.relationship("Planets")
 
 class Favorite_starships(db.Model):
     __tablename__ = 'favorite_starships'
@@ -232,3 +237,6 @@ class Favorite_starships(db.Model):
             "user_id": self.user_id,
             "starships_id": self.starships_id
         }
+
+    rel_user = db.relationship("User")
+    rel_people = db.relationship("Starships")
